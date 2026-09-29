@@ -50,6 +50,7 @@ matrix ACTION1,ACTION2
 - 对显式请求集做确定性新旧对比，保留每个变更的主体、动作、资源和决定性规则。
 - 严格门禁默认拒绝任何新增授权、撤权或跨租户新增授权。
 - JSON 报告包含请求、决策、规则命中轨迹和门禁发现。
+- MoonBit 库 API 可按动作分别设置新增授权和撤权预算；未配置的动作默认预算为零。
 - 两因素反事实归因可区分规则修订和角色继承修订对样本请求的影响；结论仅针对这两种变更维度。
 - `verify` 读取 `expect PRINCIPAL ACTION RESOURCE allow|deny` 断言，检查单版策略是否满足既定权限基线。
 - `impact` 逐条移除规则重算样本，给出每条规则被删除后新增或失去访问的数量及见证请求。
@@ -74,4 +75,4 @@ GitHub Actions 在 push 和 PR 上运行检查、测试、构建和格式检查�
 
 ## 原创性与许可
 
-项目为原创 MoonBit 实现，借鉴通用 RBAC/ABAC 概念，不移植现有引擎代码。与相关公开项目的边界、来源见 [RELATED_WORK.md](RELATED_WORK.md)。源码采用 Apache-2.0；MoonBit x 库为外部依赖，其许可证以依赖仓库为准。
+项目为原创 MoonBit 实现，借鉴通用 RBAC/ABAC 概念，不移植现有引擎代码。与相关公开项目的边界、来源见 [RELATED_WORK.md](RELATED_WORK.md)。源码采用 Apache-2.0；依赖、更新和验证记录见 [THIRD_PARTY.md](THIRD_PARTY.md)、[CHANGELOG.md](CHANGELOG.md) 和 [TEST_RECORD.md](TEST_RECORD.md)。

@@ -22,6 +22,15 @@ jobs:
         run: moon test --target js
       - name: Build
         run: moon build --target js
+      - name: Runnable examples
+        run: |
+          set +e
+          moon run cmd/main -- audit examples/saas/before.policy examples/saas/after.policy examples/saas/universe.txt json > audit.json
+          result=$?
+          set -e
+          test "$result" -eq 1
+          node -e "const r=require('./audit.json'); if(r.new_grants!==3 || r.gate!=='FAIL') process.exit(1)"
+          moon run cmd/main -- verify examples/finance/before.policy examples/finance/universe.txt examples/finance/expected-before.txt
       - name: Format
         run: |
           moon fmt

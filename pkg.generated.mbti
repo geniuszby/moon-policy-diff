@@ -14,6 +14,8 @@ pub fn cause_name(ChangeCause) -> String
 
 pub fn change_name(ChangeKind) -> String
 
+pub fn check_action_budgets(AuditReport, Array[ActionBudget]) -> GateResult
+
 pub fn check_gate(AuditReport, RequestUniverse, GateConfig) -> GateResult
 
 pub fn classify_change(Decision, Decision) -> ChangeKind
@@ -151,6 +153,12 @@ pub(all) struct AccessRule {
   tenant_relation : TenantRelation
   conditions : Array[AttributeCondition]
 } derive(Eq, @debug.Debug)
+
+pub(all) struct ActionBudget {
+  action : String
+  max_new_grants : Int
+  max_revocations : Int
+} derive(@debug.Debug)
 
 pub(all) struct AttributeCondition {
   source : AttributeSource

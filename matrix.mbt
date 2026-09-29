@@ -6,24 +6,8 @@ pub(all) struct MatrixExpansion {
 } derive(Debug)
 
 ///|
-fn same_request(a : AccessRequest, b : AccessRequest) -> Bool {
-  a.principal_id == b.principal_id &&
-  a.action == b.action &&
-  a.resource_id == b.resource_id &&
-  a.attributes == b.attributes
-}
-
-///|
-fn contains_request(
-  requests : Array[AccessRequest],
-  target : AccessRequest,
-) -> Bool {
-  for request in requests {
-    if same_request(request, target) {
-      return true
-    }
-  }
-  false
+fn matrix_key(request : AccessRequest) -> String {
+  "\{request.principal_id}|\{request.action}|\{request.resource_id}"
 }
 
 ///|
@@ -36,8 +20,12 @@ pub fn expand_request_matrix(
 ) -> MatrixExpansion {
   let diagnostics : Array[Diagnostic] = []
   let requested : Array[AccessRequest] = []
+  let seen : Map[String, Bool] = Map([])
   for existing in universe.requests {
     requested.push(existing)
+    if existing.attributes.length() == 0 {
+      seen.set(matrix_key(existing), true)
+    }
   }
   if max_requests < 1 || max_requests > 100000 {
     diagnostics.push({
@@ -77,7 +65,8 @@ pub fn expand_request_matrix(
           resource_id: resource.id,
           attributes: [],
         }
-        if !contains_request(requested, request) {
+        let key = matrix_key(request)
+        if seen.get(key) is None {
           if requested.length() >= max_requests {
             diagnostics.push({
               code: "M004",
@@ -87,6 +76,7 @@ pub fn expand_request_matrix(
             return { universe, generated_requests: 0, diagnostics, }
           }
           requested.push(request)
+          seen.set(key, true)
           generated += 1
         }
       }
