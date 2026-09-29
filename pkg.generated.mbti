@@ -54,6 +54,8 @@ pub fn matching_rule_ids(AccessPolicy, Principal, AccessResource, AccessRequest)
 
 pub fn measure_policy_coverage(AccessPolicy, RequestUniverse) -> PolicyCoverage
 
+pub fn parse_expectations(String) -> ParsedExpectations
+
 pub fn parse_policy(String) -> ParsedPolicy
 
 pub fn parse_universe(String) -> ParsedUniverse
@@ -67,6 +69,8 @@ pub fn render_lint(Array[Diagnostic]) -> String
 pub fn render_report(AuditReport, GateResult) -> String
 
 pub fn render_report_json(AuditReport, GateResult) -> String
+
+pub fn render_verification(VerificationReport) -> String
 
 pub fn rule_match_trace(AccessRule, Array[String], Principal, AccessResource, AccessRequest) -> RuleTrace
 
@@ -87,6 +91,8 @@ pub fn validate_policy(AccessPolicy) -> Array[Diagnostic]
 pub fn validate_universe(RequestUniverse) -> Array[Diagnostic]
 
 pub fn verdict_name(GateVerdict) -> String
+
+pub fn verify_expectations(AccessPolicy, RequestUniverse, Array[DecisionExpectation]) -> VerificationReport
 
 // Errors
 
@@ -189,6 +195,13 @@ pub(all) struct DecisionChange {
   kind : ChangeKind
 } derive(Eq, @debug.Debug)
 
+pub(all) struct DecisionExpectation {
+  principal_id : String
+  action : String
+  resource_id : String
+  expected : DecisionKind
+} derive(@debug.Debug)
+
 pub(all) enum DecisionKind {
   Allowed
   Denied
@@ -206,6 +219,13 @@ pub(all) enum DiagnosticSeverity {
   Warning
   Error
 } derive(Eq, @debug.Debug)
+
+pub(all) struct ExpectationResult {
+  expectation : DecisionExpectation
+  actual : DecisionKind
+  matched_requests : Int
+  passed : Bool
+} derive(@debug.Debug)
 
 pub(all) struct GateConfig {
   max_new_grants : Int
@@ -235,6 +255,11 @@ pub(all) enum GateVerdict {
 pub(all) struct MatrixExpansion {
   universe : RequestUniverse
   generated_requests : Int
+  diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
+
+pub(all) struct ParsedExpectations {
+  expectations : Array[DecisionExpectation]
   diagnostics : Array[Diagnostic]
 } derive(@debug.Debug)
 
@@ -300,6 +325,15 @@ pub(all) enum TenantRelation {
   SameTenant
   OtherTenant
 } derive(Eq, @debug.Debug)
+
+pub(all) struct VerificationReport {
+  policy_name : String
+  passed : Int
+  failed : Int
+  inconclusive : Int
+  results : Array[ExpectationResult]
+  diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
 
 // Type aliases
 

@@ -6,6 +6,7 @@ fn usage() -> Unit {
   )
   println("       moon run cmd/main -- coverage POLICY UNIVERSE")
   println("       moon run cmd/main -- lint POLICY UNIVERSE")
+  println("       moon run cmd/main -- verify POLICY UNIVERSE EXPECTATIONS")
   println("Exit: 0 pass, 1 gate failure, 2 invalid input")
 }
 
@@ -61,6 +62,35 @@ fn main {
   }
   if args.length() == 5 && args[2] == "lint" {
     inspect(args[3], args[4], true)
+    return
+  }
+  if args.length() == 6 && args[2] == "verify" {
+    match (load(args[3]), load(args[4]), load(args[5])) {
+      (Some(policy_text), Some(universe_text), Some(expectation_text)) => {
+        let policy = @lib.parse_policy(policy_text)
+        let universe = @lib.parse_universe(universe_text)
+        let expectations = @lib.parse_expectations(expectation_text)
+        if @lib.has_errors(policy.diagnostics) ||
+          @lib.has_errors(universe.diagnostics) ||
+          @lib.has_errors(expectations.diagnostics) {
+          println("Invalid verification input")
+          @sys.exit(2)
+          return
+        }
+        let result = @lib.verify_expectations(
+          policy.policy,
+          universe.universe,
+          expectations.expectations,
+        )
+        println(@lib.render_verification(result))
+        if result.inconclusive > 0 {
+          @sys.exit(2)
+        } else if result.failed > 0 {
+          @sys.exit(1)
+        }
+      }
+      _ => @sys.exit(2)
+    }
     return
   }
   if (args.length() != 6 && args.length() != 7) || args[2] != "audit" {

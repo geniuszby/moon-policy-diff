@@ -1,0 +1,4 @@
+# Baseline constraints before changing the role hierarchy.
+expect alice read forecast allow
+expect intern read forecast deny
+expect guest read ledger deny
