@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn analyze_scope(RequestUniverse, Array[String], Int) -> ScopeCoverage
+
 pub fn attribute_changes(AccessPolicy, AccessPolicy, RequestUniverse) -> Array[AttributedChange]
 
 pub fn cause_name(ChangeCause) -> String
@@ -81,6 +83,8 @@ pub fn render_report(AuditReport, GateResult) -> String
 pub fn render_report_json(AuditReport, GateResult) -> String
 
 pub fn render_rule_impact(RuleImpactReport) -> String
+
+pub fn render_scope(ScopeCoverage) -> String
 
 pub fn render_verification(VerificationReport) -> String
 
@@ -360,6 +364,15 @@ pub(all) struct RuleTrace {
   matched : Bool
   reason : String
 } derive(Eq, @debug.Debug)
+
+pub(all) struct ScopeCoverage {
+  possible_requests : Int
+  represented_requests : Int
+  missing_requests : Int
+  missing_examples : Array[AccessRequest]
+  complete : Bool
+  diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
 
 pub(all) enum TenantRelation {
   AnyTenant

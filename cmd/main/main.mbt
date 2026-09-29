@@ -7,6 +7,7 @@ fn usage() -> Unit {
   println("       moon run cmd/main -- coverage POLICY UNIVERSE")
   println("       moon run cmd/main -- lint POLICY UNIVERSE")
   println("       moon run cmd/main -- impact POLICY UNIVERSE")
+  println("       moon run cmd/main -- scope UNIVERSE ACTION1,ACTION2")
   println("       moon run cmd/main -- verify POLICY UNIVERSE EXPECTATIONS")
   println("Exit: 0 pass, 1 gate failure, 2 invalid input")
 }
@@ -79,6 +80,29 @@ fn main {
   }
   if args.length() == 5 && args[2] == "impact" {
     inspect(args[3], args[4], "impact")
+    return
+  }
+  if args.length() == 5 && args[2] == "scope" {
+    match load(args[3]) {
+      Some(universe_text) => {
+        let universe = @lib.parse_universe(universe_text)
+        if @lib.has_errors(universe.diagnostics) {
+          println("Invalid universe")
+          @sys.exit(2)
+          return
+        }
+        let actions : Array[String] = []
+        for item in args[4].split(",") {
+          actions.push(item.to_owned())
+        }
+        let scope = @lib.analyze_scope(universe.universe, actions, 100000)
+        println(@lib.render_scope(scope))
+        if !scope.complete {
+          @sys.exit(2)
+        }
+      }
+      _ => @sys.exit(2)
+    }
     return
   }
   if args.length() == 6 && args[2] == "verify" {
