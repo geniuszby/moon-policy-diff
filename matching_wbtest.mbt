@@ -51,3 +51,43 @@ test "missing attribute is not unequal by default" {
   }
   assert_false(condition_matches(condition, principal, resource, request))
 }
+
+///|
+test "effective roles includes every direct role beyond the policy edge limit" {
+  let direct : Array[String] = []
+  for index in 0..<4100 {
+    direct.push("role-\{index}")
+  }
+  let principal : Principal = {
+    id: "large",
+    tenant: "tenant",
+    roles: direct,
+    attributes: [],
+  }
+  let roles = effective_roles(empty_policy("p"), principal)
+  assert_eq(roles.length(), 4100)
+  assert_true(roles.contains("role-4099"))
+}
+
+///|
+test "effective roles terminates on repeated cyclic edges" {
+  let policy : AccessPolicy = {
+    name: "cycle",
+    role_inheritance: [
+      { child: "a", parent: "b", },
+      { child: "b", parent: "a", },
+      { child: "a", parent: "b", },
+    ],
+    rules: [],
+  }
+  let principal : Principal = {
+    id: "alice",
+    tenant: "tenant",
+    roles: ["a", "a"],
+    attributes: [],
+  }
+  let roles = effective_roles(policy, principal)
+  assert_eq(roles.length(), 2)
+  assert_true(roles.contains("a"))
+  assert_true(roles.contains("b"))
+}

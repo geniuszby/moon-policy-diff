@@ -51,20 +51,22 @@ pub fn effective_roles(
 ) -> Array[String] {
   let roles : Array[String] = []
   let pending : Array[String] = []
+  let queued : Map[String, Bool] = Map([])
   for role in principal.roles {
-    if !pending.contains(role) {
+    if queued.get(role) is None {
       pending.push(role)
+      queued.set(role, true)
     }
   }
-  while pending.length() > 0 && roles.length() <= 4096 {
-    let role = pending.remove(0)
-    if roles.contains(role) {
-      continue
-    }
+  let mut next = 0
+  while next < pending.length() {
+    let role = pending[next]
+    next += 1
     roles.push(role)
     for edge in policy.role_inheritance {
-      if edge.child == role && !roles.contains(edge.parent) {
+      if edge.child == role && queued.get(edge.parent) is None {
         pending.push(edge.parent)
+        queued.set(edge.parent, true)
       }
     }
   }
