@@ -1,0 +1,5 @@
+// import {
+//   "geniuszby/moon-policy-diff" @lib,
+// }
+
+pkgtype(kind: "executable")
