@@ -19,7 +19,7 @@ repository = "https://github.com/geniuszby/moon-policy-diff"
 
 license = "Apache-2.0"
 
-keywords = ["authorization", "policy", "rbac", "abac", "change-audit"]
+keywords = [ "authorization", "policy", "rbac", "abac", "change-audit" ]
 
 preferred_target = "js"
 
