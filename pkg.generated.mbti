@@ -24,6 +24,8 @@ pub fn count_changes(AuditReport, ChangeKind) -> Int
 
 pub fn count_lint(Array[Diagnostic], DiagnosticSeverity) -> Int
 
+pub fn cross_tenant_change_count(Array[ChangeGroup]) -> Int
+
 pub fn default_deny() -> Decision
 
 pub fn effective_roles(AccessPolicy, Principal) -> Array[String]
@@ -41,6 +43,8 @@ pub fn expand_request_matrix(RequestUniverse, Array[String], Int) -> MatrixExpan
 pub fn find_witnesses(AuditReport, ChangeKind) -> Array[DecisionChange]
 
 pub fn glob_matches(String, String) -> Bool
+
+pub fn group_changes(AuditReport, RequestUniverse) -> Array[ChangeGroup]
 
 pub fn has_errors(Array[Diagnostic]) -> Bool
 
@@ -67,6 +71,8 @@ pub fn parse_universe(String) -> ParsedUniverse
 pub fn render_attribution(Array[AttributedChange]) -> String
 
 pub fn render_coverage(PolicyCoverage) -> String
+
+pub fn render_groups(Array[ChangeGroup]) -> String
 
 pub fn render_lint(Array[Diagnostic]) -> String
 
@@ -178,6 +184,16 @@ pub(all) enum ChangeCause {
   CombinedRevision
   Unattributed
 } derive(Eq, @debug.Debug)
+
+pub(all) struct ChangeGroup {
+  principal_tenant : String
+  resource_tenant : String
+  action : String
+  new_grants : Int
+  revocations : Int
+  unchanged : Int
+  inconclusive : Int
+} derive(@debug.Debug)
 
 pub(all) enum ChangeKind {
   NewGrant
