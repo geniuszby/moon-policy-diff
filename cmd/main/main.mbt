@@ -4,7 +4,7 @@
 /// Run with `moon run cmd/main` from the project root.
 fn usage() -> Unit {
   println("MoonPolicyDiff: offline policy change audit")
-  println("Usage: moon run cmd/main -- audit BEFORE AFTER UNIVERSE")
+  println("Usage: moon run cmd/main -- audit BEFORE AFTER UNIVERSE [text|json]")
   println("Exit: 0 pass, 1 gate failure, 2 invalid input")
 }
 
@@ -21,7 +21,7 @@ fn load(path : String) -> String? {
 ///|
 fn main {
   let args = @env.args()
-  if args.length() != 6 || args[2] != "audit" {
+  if (args.length() != 6 && args.length() != 7) || args[2] != "audit" {
     usage()
     @sys.exit(2)
     return
@@ -52,7 +52,16 @@ fn main {
         universe.universe,
       )
       let gate = @lib.check_gate(report, universe.universe, @lib.strict_gate())
-      println(@lib.render_report(report, gate))
+      let format = if args.length() == 7 { args[6] } else { "text" }
+      match format {
+        "text" => println(@lib.render_report(report, gate))
+        "json" => println(@lib.render_report_json(report, gate))
+        _ => {
+          usage()
+          @sys.exit(2)
+          return
+        }
+      }
       match gate.verdict {
         @lib.Pass => ()
         @lib.Fail => @sys.exit(1)

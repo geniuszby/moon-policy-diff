@@ -52,6 +52,8 @@ pub fn render_coverage(PolicyCoverage) -> String
 
 pub fn render_report(AuditReport, GateResult) -> String
 
+pub fn render_report_json(AuditReport, GateResult) -> String
+
 pub fn rule_match_trace(AccessRule, Array[String], Principal, AccessResource, AccessRequest) -> RuleTrace
 
 pub fn selector_matches(Array[String], String) -> Bool
