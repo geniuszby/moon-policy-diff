@@ -1,7 +1,9 @@
 ///|
 fn usage() -> Unit {
   println("MoonPolicyDiff: offline policy change audit")
-  println("Usage: moon run cmd/main -- audit BEFORE AFTER UNIVERSE [text|json]")
+  println(
+    "Usage: moon run cmd/main -- audit BEFORE AFTER UNIVERSE [text|json|attribution]",
+  )
   println("       moon run cmd/main -- coverage POLICY UNIVERSE")
   println("       moon run cmd/main -- lint POLICY UNIVERSE")
   println("Exit: 0 pass, 1 gate failure, 2 invalid input")
@@ -96,6 +98,16 @@ fn main {
       match format {
         "text" => println(@lib.render_report(report, gate))
         "json" => println(@lib.render_report_json(report, gate))
+        "attribution" =>
+          println(
+            @lib.render_attribution(
+              @lib.attribute_changes(
+                before.policy,
+                after.policy,
+                universe.universe,
+              ),
+            ),
+          )
         _ => {
           usage()
           @sys.exit(2)

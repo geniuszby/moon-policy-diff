@@ -6,6 +6,10 @@ import {
 }
 
 // Values
+pub fn attribute_changes(AccessPolicy, AccessPolicy, RequestUniverse) -> Array[AttributedChange]
+
+pub fn cause_name(ChangeCause) -> String
+
 pub fn change_name(ChangeKind) -> String
 
 pub fn check_gate(AuditReport, RequestUniverse, GateConfig) -> GateResult
@@ -53,6 +57,8 @@ pub fn measure_policy_coverage(AccessPolicy, RequestUniverse) -> PolicyCoverage
 pub fn parse_policy(String) -> ParsedPolicy
 
 pub fn parse_universe(String) -> ParsedUniverse
+
+pub fn render_attribution(Array[AttributedChange]) -> String
 
 pub fn render_coverage(PolicyCoverage) -> String
 
@@ -136,6 +142,14 @@ pub(all) enum AttributeSource {
   RequestAttribute
 } derive(Eq, @debug.Debug)
 
+pub(all) struct AttributedChange {
+  request : AccessRequest
+  kind : ChangeKind
+  cause : ChangeCause
+  changed_rule_ids : Array[String]
+  role_edges_changed : Bool
+} derive(@debug.Debug)
+
 pub(all) struct AuditReport {
   before_name : String
   after_name : String
@@ -143,6 +157,14 @@ pub(all) struct AuditReport {
   changes : Array[DecisionChange]
   diagnostics : Array[Diagnostic]
   complete : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ChangeCause {
+  RuleRevision
+  RoleInheritanceRevision
+  EitherRevision
+  CombinedRevision
+  Unattributed
 } derive(Eq, @debug.Debug)
 
 pub(all) enum ChangeKind {
