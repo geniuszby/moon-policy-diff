@@ -1,0 +1,8 @@
+principal alice tenant-a reader department=finance
+principal bob tenant-b reader department=sales
+resource invoice-a invoice tenant-a owner=alice
+resource invoice-b invoice tenant-b owner=bob
+request alice read invoice-a -
+request alice export invoice-a -
+request alice export invoice-b -
+request bob export invoice-a -

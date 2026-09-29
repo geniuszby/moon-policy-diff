@@ -1,0 +1,4 @@
+# Proposed change grants an AI agent tool execution.
+policy tools-after
+rule inspect permit analyst inspect document - same -
+rule execute permit agent execute tool - same principal:approved:eq:yes

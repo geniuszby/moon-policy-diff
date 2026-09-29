@@ -1,0 +1,4 @@
+# A broad new export rule accidentally crosses tenant boundaries.
+policy saas-after
+rule read-invoice permit reader read invoice - same -
+rule allow-export permit reader export invoice - any -

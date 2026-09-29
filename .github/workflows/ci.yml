@@ -1,0 +1,26 @@
+name: MoonBit CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: hustcer/setup-moonbit@v1
+      - name: Check
+        run: moon check --target js
+      - name: Test
+        run: moon test --target js
+      - name: Build
+        run: moon build --target js
+      - name: Format
+        run: |
+          moon fmt
+          git diff --exit-code

@@ -1,0 +1,3 @@
+# AI agent may inspect documents but cannot execute external tools.
+policy tools-before
+rule inspect permit analyst inspect document - same -

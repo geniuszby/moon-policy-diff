@@ -1,0 +1,241 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "geniuszby/moon-policy-diff"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn change_name(ChangeKind) -> String
+
+pub fn check_gate(AuditReport, RequestUniverse, GateConfig) -> GateResult
+
+pub fn classify_change(Decision, Decision) -> ChangeKind
+
+pub fn compare_policies(AccessPolicy, AccessPolicy, RequestUniverse) -> AuditReport
+
+pub fn condition_matches(AttributeCondition, Principal, AccessResource, AccessRequest) -> Bool
+
+pub fn count_changes(AuditReport, ChangeKind) -> Int
+
+pub fn default_deny() -> Decision
+
+pub fn effective_roles(AccessPolicy, Principal) -> Array[String]
+
+pub fn empty_policy(String) -> AccessPolicy
+
+pub fn empty_universe() -> RequestUniverse
+
+pub fn evaluate_request(AccessPolicy, RequestUniverse, AccessRequest) -> Decision
+
+pub fn evaluate_validated(AccessPolicy, RequestUniverse, AccessRequest) -> Decision
+
+pub fn find_witnesses(AuditReport, ChangeKind) -> Array[DecisionChange]
+
+pub fn glob_matches(String, String) -> Bool
+
+pub fn has_errors(Array[Diagnostic]) -> Bool
+
+pub fn is_valid_identifier(String) -> Bool
+
+pub fn lookup_attribute(Array[(String, String)], String) -> String?
+
+pub fn matching_rule_ids(AccessPolicy, Principal, AccessResource, AccessRequest) -> Array[String]
+
+pub fn parse_policy(String) -> ParsedPolicy
+
+pub fn parse_universe(String) -> ParsedUniverse
+
+pub fn render_report(AuditReport, GateResult) -> String
+
+pub fn rule_match_trace(AccessRule, Array[String], Principal, AccessResource, AccessRequest) -> RuleTrace
+
+pub fn selector_matches(Array[String], String) -> Bool
+
+pub fn strict_gate() -> GateConfig
+
+pub fn unknown_decision(String) -> Decision
+
+pub fn validate_policy(AccessPolicy) -> Array[Diagnostic]
+
+pub fn validate_universe(RequestUniverse) -> Array[Diagnostic]
+
+pub fn verdict_name(GateVerdict) -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct AccessPolicy {
+  name : String
+  role_inheritance : Array[RoleInheritance]
+  rules : Array[AccessRule]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AccessRequest {
+  principal_id : String
+  action : String
+  resource_id : String
+  attributes : Array[(String, String)]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AccessResource {
+  id : String
+  kind : String
+  tenant : String
+  attributes : Array[(String, String)]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AccessRule {
+  id : String
+  effect : RuleEffect
+  roles : Array[String]
+  actions : Array[String]
+  resource_kinds : Array[String]
+  resource_ids : Array[String]
+  tenant_relation : TenantRelation
+  conditions : Array[AttributeCondition]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AttributeCondition {
+  source : AttributeSource
+  key : String
+  operator : AttributeOperator
+  value : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum AttributeOperator {
+  Equals
+  NotEquals
+  Exists
+  Missing
+} derive(Eq, @debug.Debug)
+
+pub(all) enum AttributeSource {
+  PrincipalAttribute
+  ResourceAttribute
+  RequestAttribute
+} derive(Eq, @debug.Debug)
+
+pub(all) struct AuditReport {
+  before_name : String
+  after_name : String
+  requests_considered : Int
+  changes : Array[DecisionChange]
+  diagnostics : Array[Diagnostic]
+  complete : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) enum ChangeKind {
+  NewGrant
+  RevokedGrant
+  UnchangedAllow
+  UnchangedDeny
+  Inconclusive
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Decision {
+  kind : DecisionKind
+  decisive_rules : Array[String]
+  traces : Array[RuleTrace]
+  explanation : String
+} derive(Eq, @debug.Debug)
+
+pub(all) struct DecisionChange {
+  request : AccessRequest
+  before : Decision
+  after : Decision
+  kind : ChangeKind
+} derive(Eq, @debug.Debug)
+
+pub(all) enum DecisionKind {
+  Allowed
+  Denied
+  Unknown
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Diagnostic {
+  code : String
+  severity : DiagnosticSeverity
+  message : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum DiagnosticSeverity {
+  Info
+  Warning
+  Error
+} derive(Eq, @debug.Debug)
+
+pub(all) struct GateConfig {
+  max_new_grants : Int
+  max_revocations : Int
+  forbid_cross_tenant_grants : Bool
+  permitted_principals : Array[String]
+  permitted_actions : Array[String]
+} derive(@debug.Debug)
+
+pub(all) struct GateFinding {
+  code : String
+  request : AccessRequest
+  message : String
+} derive(@debug.Debug)
+
+pub(all) struct GateResult {
+  verdict : GateVerdict
+  findings : Array[GateFinding]
+} derive(@debug.Debug)
+
+pub(all) enum GateVerdict {
+  Pass
+  Fail
+  Indeterminate
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ParsedPolicy {
+  policy : AccessPolicy
+  diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
+
+pub(all) struct ParsedUniverse {
+  universe : RequestUniverse
+  diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
+
+pub(all) struct Principal {
+  id : String
+  tenant : String
+  roles : Array[String]
+  attributes : Array[(String, String)]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct RequestUniverse {
+  principals : Array[Principal]
+  resources : Array[AccessResource]
+  requests : Array[AccessRequest]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct RoleInheritance {
+  child : String
+  parent : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum RuleEffect {
+  Permit
+  Deny
+} derive(Eq, @debug.Debug)
+
+pub(all) struct RuleTrace {
+  rule_id : String
+  effect : RuleEffect
+  matched : Bool
+  reason : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum TenantRelation {
+  AnyTenant
+  SameTenant
+  OtherTenant
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits

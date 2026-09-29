@@ -1,5 +1,8 @@
-// import {
-//   "geniuszby/moon-policy-diff" @lib,
-// }
+import {
+  "geniuszby/moon-policy-diff" @lib,
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/sys",
+}
 
 pkgtype(kind: "executable")

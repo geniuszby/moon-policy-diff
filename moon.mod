@@ -24,3 +24,7 @@ keywords = [ "authorization", "policy", "rbac", "abac", "change-audit" ]
 preferred_target = "js"
 
 description = "Bounded access-policy change audit with explainable counterexamples"
+
+import {
+  "moonbitlang/x@0.4.49",
+}

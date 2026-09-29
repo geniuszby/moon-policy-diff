@@ -1,0 +1,4 @@
+# SaaS invoices are readable only by the owning tenant.
+policy saas-before
+rule read-invoice permit reader read invoice - same -
+rule deny-export deny reader export invoice - any -

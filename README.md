@@ -1,48 +1,60 @@
 # MoonPolicyDiff
 
-MoonPolicyDiff is an offline MoonBit toolkit for reviewing access-policy changes.
-It evaluates the same bounded request space against two policy revisions and
-reports grants, revocations, and concrete requests that explain each difference.
+MoonPolicyDiff 是 MoonBit 实现的离线权限策略变更审计工具。输入新旧策略和一组明确列出的请求，程序分别求值，找出新增授权、撤销授权、命中的规则，并用退出码供 CI 拦截。适用于多租户 SaaS、数据访问和 AI 工具权限的发布前检查。
 
-The intended users are maintainers of SaaS APIs, internal tools, data platforms,
-and agent tool permissions. A policy review should answer **who can do what after
-this change**, not only whether the policy file parses.
+## 快速运行
 
-## Scope
+安装 MoonBit 工具链后，在仓库根目录执行：
 
-- Deterministic policy evaluation with explicit deny precedence and default deny.
-- Roles, role inheritance, tenant and resource matching, and bounded attributes.
-- Old/new comparison over an explicit finite request universe.
-- Explainable counterexamples, policy lint, and JSON or text reports.
-- MoonBit library, command-line demonstration, tests, and CI.
+```sh
+moon run cmd/main -- audit examples/saas/before.policy examples/saas/after.policy examples/saas/universe.txt
+moon run cmd/main -- audit examples/ai-tools/before.policy examples/ai-tools/after.policy examples/ai-tools/universe.txt
+```
 
-The bounded universe is an input to the analysis. A clean report does not prove
-behavior for identities, resources, actions, or attributes outside that universe.
-The project does not implement OAuth, authentication, token issuance, an online
-authorization server, or a complete Cedar/Casbin interpreter.
+两个示例都会报告新增授权，因此严格门禁退出码为 1。退出码 0 表示通过，2 表示输入无效或结论不确定。
 
-## Status
+## 输入格式
 
-Development is in progress for the September 2026 MoonBit Hackathon. Completed
-features and exact verification results will be recorded here as they land.
-The public repository is https://github.com/geniuszby/moon-policy-diff.
+策略文件每行一个指令：
 
-## Development
+```text
+policy NAME
+inherit CHILD_ROLE PARENT_ROLE
+rule ID permit|deny ROLES ACTIONS RESOURCE_KINDS RESOURCE_IDS any|same|other CONDITIONS
+```
+
+列表使用逗号分隔，单个 `-` 表示不限。条件格式为 `principal:KEY:eq:VALUE`、`resource:KEY:neq:VALUE` 或 `request:KEY:exists:-`。同一条规则的所有条件必须满足；拒绝规则优先于允许规则，未命中时默认拒绝。
+
+请求样本文件：
+
+```text
+principal ID TENANT ROLE1,ROLE2 KEY=VALUE,...
+resource ID KIND TENANT KEY=VALUE,...
+request PRINCIPAL_ID ACTION RESOURCE_ID KEY=VALUE,...
+```
+
+属性为空时使用 `-`。示例见 [examples/saas](examples/saas) 和 [examples/ai-tools](examples/ai-tools)。
+
+## 能力与边界
+
+- 角色继承、通配符匹配、资源类型、租户关系和主体/资源/请求属性条件。
+- 对显式请求集做确定性新旧对比，保留每个变更的主体、动作、资源和决定性规则。
+- 严格门禁默认拒绝任何新增授权、撤权或跨租户新增授权。
+- 分析只覆盖输入的请求集合；未采样请求不构成安全保证。
+- 当前不提供认证、令牌签发、在线授权服务或其他策略语言的兼容解释器。
+
+## 验证
 
 ```sh
 moon check --target js
 moon test --target js
 moon build --target js
-moon fmt --check
+moon info
+moon fmt
 ```
 
-## Originality and related work
+GitHub Actions 在 push 和 PR 上运行检查、测试、构建和格式检查。
 
-This is an original MoonBit implementation. It is not a port of an existing
-policy engine. Existing MoonBit JWT packages verify credentials, while the
-proposed focus here is **offline before/after policy behavior and witnesses**.
-The standard role/attribute policy concepts are common prior art; the value
-must be demonstrated by working analysis, tests, and concrete scenarios.
-See [RELATED_WORK.md](RELATED_WORK.md) for the scope of the public overlap scan.
+## 原创性与许可
 
-License: Apache-2.0.
+项目为原创 MoonBit 实现，借鉴通用 RBAC/ABAC 概念，不移植现有引擎代码。与相关公开项目的边界、来源见 [RELATED_WORK.md](RELATED_WORK.md)。源码采用 Apache-2.0；MoonBit x 库为外部依赖，其许可证以依赖仓库为准。

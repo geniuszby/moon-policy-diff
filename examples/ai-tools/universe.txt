@@ -1,0 +1,6 @@
+principal assistant workspace-1 agent approved=yes
+principal observer workspace-1 analyst -
+resource search-tool tool workspace-1 -
+resource report document workspace-1 -
+request assistant execute search-tool -
+request observer inspect report -
