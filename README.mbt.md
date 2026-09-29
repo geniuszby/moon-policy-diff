@@ -2,6 +2,8 @@
 
 MoonPolicyDiff 是 MoonBit 实现的离线权限策略变更审计工具。输入新旧策略和一组明确列出的请求，程序分别求值，找出新增授权、撤销授权、命中的规则，并用退出码供 CI 拦截。适用于多租户 SaaS、数据访问和 AI 工具权限的发布前检查。
 
+公开代码：[GitHub](https://github.com/geniuszby/moon-policy-diff)；0.1.0 包：[Mooncakes](https://mooncakes.io/docs/geniuszby/moon-policy-diff)。
+
 ## 快速运行
 
 安装 MoonBit 工具链后，在仓库根目录执行：
