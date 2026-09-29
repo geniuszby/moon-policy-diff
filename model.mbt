@@ -163,12 +163,12 @@ pub(all) struct AuditReport {
 
 ///|
 pub fn empty_policy(name : String) -> AccessPolicy {
-  { name, role_inheritance: [], rules: [] }
+  { name, role_inheritance: [], rules: [], }
 }
 
 ///|
 pub fn empty_universe() -> RequestUniverse {
-  { principals: [], resources: [], requests: [] }
+  { principals: [], resources: [], requests: [], }
 }
 
 ///|
@@ -183,7 +183,7 @@ pub fn default_deny() -> Decision {
 
 ///|
 pub fn unknown_decision(message : String) -> Decision {
-  { kind: Unknown, decisive_rules: [], traces: [], explanation: message }
+  { kind: Unknown, decisive_rules: [], traces: [], explanation: message, }
 }
 
 ///|
@@ -207,7 +207,10 @@ pub fn is_valid_identifier(value : String) -> Bool {
 }
 
 ///|
-pub fn lookup_attribute(attrs : Array[(String, String)], key : String) -> String? {
+pub fn lookup_attribute(
+  attrs : Array[(String, String)],
+  key : String,
+) -> String? {
   for pair in attrs {
     if pair.0 == key {
       return Some(pair.1)
