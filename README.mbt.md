@@ -12,6 +12,7 @@ moon run cmd/main -- audit examples/ai-tools/before.policy examples/ai-tools/aft
 moon run cmd/main -- audit examples/finance/before.policy examples/finance/after.policy examples/finance/universe.txt json
 moon run cmd/main -- audit examples/finance/before.policy examples/finance/after.policy examples/finance/universe.txt attribution
 moon run cmd/main -- verify examples/finance/before.policy examples/finance/universe.txt examples/finance/expected-before.txt
+moon run cmd/main -- impact examples/saas/after.policy examples/saas/universe.txt
 ```
 
 两个示例都会报告新增授权，因此严格门禁退出码为 1。退出码 0 表示通过，2 表示输入无效或结论不确定。
@@ -47,6 +48,7 @@ matrix ACTION1,ACTION2
 - JSON 报告包含请求、决策、规则命中轨迹和门禁发现。
 - 两因素反事实归因可区分规则修订和角色继承修订对样本请求的影响；结论仅针对这两种变更维度。
 - `verify` 读取 `expect PRINCIPAL ACTION RESOURCE allow|deny` 断言，检查单版策略是否满足既定权限基线。
+- `impact` 逐条移除规则重算样本，给出每条规则被删除后新增或失去访问的数量及见证请求。
 - 分析只覆盖输入的请求集合；未采样请求不构成安全保证。
 - 当前不提供认证、令牌签发、在线授权服务或其他策略语言的兼容解释器。
 

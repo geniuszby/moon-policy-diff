@@ -6,6 +6,7 @@ fn usage() -> Unit {
   )
   println("       moon run cmd/main -- coverage POLICY UNIVERSE")
   println("       moon run cmd/main -- lint POLICY UNIVERSE")
+  println("       moon run cmd/main -- impact POLICY UNIVERSE")
   println("       moon run cmd/main -- verify POLICY UNIVERSE EXPECTATIONS")
   println("Exit: 0 pass, 1 gate failure, 2 invalid input")
 }
@@ -21,7 +22,7 @@ fn load(path : String) -> String? {
 }
 
 ///|
-fn inspect(policy_path : String, universe_path : String, lint : Bool) -> Unit {
+fn inspect(policy_path : String, universe_path : String, mode : String) -> Unit {
   match (load(policy_path), load(universe_path)) {
     (Some(policy_text), Some(universe_text)) => {
       let policy = @lib.parse_policy(policy_text)
@@ -37,16 +38,28 @@ fn inspect(policy_path : String, universe_path : String, lint : Bool) -> Unit {
         @sys.exit(2)
         return
       }
-      if lint {
-        println(
-          @lib.render_lint(@lib.lint_policy(policy.policy, universe.universe)),
-        )
-      } else {
-        println(
-          @lib.render_coverage(
-            @lib.measure_policy_coverage(policy.policy, universe.universe),
-          ),
-        )
+      match mode {
+        "lint" =>
+          println(
+            @lib.render_lint(@lib.lint_policy(policy.policy, universe.universe)),
+          )
+        "coverage" =>
+          println(
+            @lib.render_coverage(
+              @lib.measure_policy_coverage(policy.policy, universe.universe),
+            ),
+          )
+        "impact" => {
+          let report = @lib.measure_rule_impact(
+            policy.policy,
+            universe.universe,
+          )
+          println(@lib.render_rule_impact(report))
+          if !report.complete {
+            @sys.exit(2)
+          }
+        }
+        _ => @sys.exit(2)
       }
     }
     _ => @sys.exit(2)
@@ -57,11 +70,15 @@ fn inspect(policy_path : String, universe_path : String, lint : Bool) -> Unit {
 fn main {
   let args = @env.args()
   if args.length() == 5 && args[2] == "coverage" {
-    inspect(args[3], args[4], false)
+    inspect(args[3], args[4], "coverage")
     return
   }
   if args.length() == 5 && args[2] == "lint" {
-    inspect(args[3], args[4], true)
+    inspect(args[3], args[4], "lint")
+    return
+  }
+  if args.length() == 5 && args[2] == "impact" {
+    inspect(args[3], args[4], "impact")
     return
   }
   if args.length() == 6 && args[2] == "verify" {
