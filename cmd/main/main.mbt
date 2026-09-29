@@ -1,10 +1,9 @@
 ///|
-/// Entry point for the CLI or runnable program in this template.
-/// Keep main focused; move logic into the library package.
-/// Run with `moon run cmd/main` from the project root.
 fn usage() -> Unit {
   println("MoonPolicyDiff: offline policy change audit")
   println("Usage: moon run cmd/main -- audit BEFORE AFTER UNIVERSE [text|json]")
+  println("       moon run cmd/main -- coverage POLICY UNIVERSE")
+  println("       moon run cmd/main -- lint POLICY UNIVERSE")
   println("Exit: 0 pass, 1 gate failure, 2 invalid input")
 }
 
@@ -19,8 +18,49 @@ fn load(path : String) -> String? {
 }
 
 ///|
+fn inspect(policy_path : String, universe_path : String, lint : Bool) -> Unit {
+  match (load(policy_path), load(universe_path)) {
+    (Some(policy_text), Some(universe_text)) => {
+      let policy = @lib.parse_policy(policy_text)
+      let universe = @lib.parse_universe(universe_text)
+      if @lib.has_errors(policy.diagnostics) ||
+        @lib.has_errors(universe.diagnostics) {
+        for issue in policy.diagnostics {
+          println("\{issue.code}: \{issue.message}")
+        }
+        for issue in universe.diagnostics {
+          println("\{issue.code}: \{issue.message}")
+        }
+        @sys.exit(2)
+        return
+      }
+      if lint {
+        println(
+          @lib.render_lint(@lib.lint_policy(policy.policy, universe.universe)),
+        )
+      } else {
+        println(
+          @lib.render_coverage(
+            @lib.measure_policy_coverage(policy.policy, universe.universe),
+          ),
+        )
+      }
+    }
+    _ => @sys.exit(2)
+  }
+}
+
+///|
 fn main {
   let args = @env.args()
+  if args.length() == 5 && args[2] == "coverage" {
+    inspect(args[3], args[4], false)
+    return
+  }
+  if args.length() == 5 && args[2] == "lint" {
+    inspect(args[3], args[4], true)
+    return
+  }
   if (args.length() != 6 && args.length() != 7) || args[2] != "audit" {
     usage()
     @sys.exit(2)

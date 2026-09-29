@@ -18,6 +18,8 @@ pub fn condition_matches(AttributeCondition, Principal, AccessResource, AccessRe
 
 pub fn count_changes(AuditReport, ChangeKind) -> Int
 
+pub fn count_lint(Array[Diagnostic], DiagnosticSeverity) -> Int
+
 pub fn default_deny() -> Decision
 
 pub fn effective_roles(AccessPolicy, Principal) -> Array[String]
@@ -40,6 +42,8 @@ pub fn has_errors(Array[Diagnostic]) -> Bool
 
 pub fn is_valid_identifier(String) -> Bool
 
+pub fn lint_policy(AccessPolicy, RequestUniverse) -> Array[Diagnostic]
+
 pub fn lookup_attribute(Array[(String, String)], String) -> String?
 
 pub fn matching_rule_ids(AccessPolicy, Principal, AccessResource, AccessRequest) -> Array[String]
@@ -51,6 +55,8 @@ pub fn parse_policy(String) -> ParsedPolicy
 pub fn parse_universe(String) -> ParsedUniverse
 
 pub fn render_coverage(PolicyCoverage) -> String
+
+pub fn render_lint(Array[Diagnostic]) -> String
 
 pub fn render_report(AuditReport, GateResult) -> String
 
