@@ -84,7 +84,11 @@ pub fn render_rule_impact(RuleImpactReport) -> String
 
 pub fn render_verification(VerificationReport) -> String
 
+pub fn render_witnesses(WitnessSelection) -> String
+
 pub fn rule_match_trace(AccessRule, Array[String], Principal, AccessResource, AccessRequest) -> RuleTrace
+
+pub fn select_witnesses(AuditReport, RequestUniverse, Int) -> WitnessSelection
 
 pub fn selector_matches(Array[String], String) -> Bool
 
@@ -370,6 +374,24 @@ pub(all) struct VerificationReport {
   inconclusive : Int
   results : Array[ExpectationResult]
   diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
+
+pub(all) struct WitnessGroup {
+  kind : ChangeKind
+  action : String
+  resource_kind : String
+  cross_tenant : Bool
+  before_rules : Array[String]
+  after_rules : Array[String]
+  occurrences : Int
+  example : AccessRequest
+} derive(@debug.Debug)
+
+pub(all) struct WitnessSelection {
+  groups : Array[WitnessGroup]
+  total_changed_requests : Int
+  omitted_groups : Int
+  complete : Bool
 } derive(@debug.Debug)
 
 // Type aliases

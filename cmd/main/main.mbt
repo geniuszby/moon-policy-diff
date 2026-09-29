@@ -2,7 +2,7 @@
 fn usage() -> Unit {
   println("MoonPolicyDiff: offline policy change audit")
   println(
-    "Usage: moon run cmd/main -- audit BEFORE AFTER UNIVERSE [text|json|attribution|groups]",
+    "Usage: moon run cmd/main -- audit BEFORE AFTER UNIVERSE [text|json|attribution|groups|witnesses]",
   )
   println("       moon run cmd/main -- coverage POLICY UNIVERSE")
   println("       moon run cmd/main -- lint POLICY UNIVERSE")
@@ -148,6 +148,12 @@ fn main {
         "groups" =>
           println(
             @lib.render_groups(@lib.group_changes(report, universe.universe)),
+          )
+        "witnesses" =>
+          println(
+            @lib.render_witnesses(
+              @lib.select_witnesses(report, universe.universe, 100),
+            ),
           )
         "attribution" =>
           println(
