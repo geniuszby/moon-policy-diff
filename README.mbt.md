@@ -16,6 +16,7 @@ moon run cmd/main -- impact examples/saas/after.policy examples/saas/universe.tx
 moon run cmd/main -- audit examples/saas/before.policy examples/saas/after.policy examples/saas/universe.txt groups
 moon run cmd/main -- audit examples/saas/before.policy examples/saas/after.policy examples/saas/universe.txt witnesses
 moon run cmd/main -- scope examples/saas/universe.txt read,export
+moon run cmd/main -- audit examples/finance/before.policy examples/finance/after.policy examples/finance/universe.txt structural
 ```
 
 两个示例都会报告新增授权，因此严格门禁退出码为 1。退出码 0 表示通过，2 表示输入无效或结论不确定。
@@ -55,6 +56,7 @@ matrix ACTION1,ACTION2
 - `groups` 按主体租户、资源租户和动作汇总样本变更，便于查看跨租户授权集中在哪些场景。
 - `witnesses` 按变更类型、动作、资源类型、跨租户关系和决定性规则合并同类请求，保留每组一个可复现见证；完整结果仍可用 `text` 或 `json` 查看。
 - `scope` 对给定动作检查“主体 × 动作 × 资源”三元组覆盖情况，明确列出缺失示例；属性取值组合仍需单独设计样本。
+- `structural` 列出规则和角色继承边的增删改，与基于请求的行为对比互补。
 - 分析只覆盖输入的请求集合；未采样请求不构成安全保证。
 - 当前不提供认证、令牌签发、在线授权服务或其他策略语言的兼容解释器。
 

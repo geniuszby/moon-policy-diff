@@ -128,20 +128,20 @@ pub fn validate_policy(policy : AccessPolicy) -> Array[Diagnostic] {
     validate_selector(rule.actions, rule.id, "actions", issues)
     validate_selector(rule.resource_kinds, rule.id, "resource kinds", issues)
     validate_selector(rule.resource_ids, rule.id, "resource ids", issues)
-    let seen_conditions : Array[String] = []
+    let seen_conditions : Array[(AttributeSource, String, AttributeOperator)] = []
     for condition in rule.conditions {
       if !is_valid_identifier(condition.key) {
         issues.push(
           diagnostic("P010", Error, "\{rule.id}: invalid condition key"),
         )
       }
-      let marker = "{condition.source}:{condition.key}:{condition.operator}"
+      let marker = (condition.source, condition.key, condition.operator)
       if seen_conditions.contains(marker) {
         issues.push(
           diagnostic(
             "P011",
             Warning,
-            "\{rule.id}: repeated condition \{marker}",
+            "\{rule.id}: repeated condition on \{condition.key}",
           ),
         )
       }

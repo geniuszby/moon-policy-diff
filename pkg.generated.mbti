@@ -86,6 +86,8 @@ pub fn render_rule_impact(RuleImpactReport) -> String
 
 pub fn render_scope(ScopeCoverage) -> String
 
+pub fn render_structural_diff(StructuralDiff) -> String
+
 pub fn render_verification(VerificationReport) -> String
 
 pub fn render_witnesses(WitnessSelection) -> String
@@ -99,6 +101,8 @@ pub fn selector_matches(Array[String], String) -> Bool
 pub fn shadowed_rules(PolicyCoverage) -> Array[String]
 
 pub fn strict_gate() -> GateConfig
+
+pub fn structural_diff(AccessPolicy, AccessPolicy) -> StructuralDiff
 
 pub fn tenant_pairs(RequestUniverse) -> Array[(String, String)]
 
@@ -338,6 +342,18 @@ pub(all) struct RuleCoverage {
   decisive_requests : Int
 } derive(@debug.Debug)
 
+pub(all) struct RuleDelta {
+  rule_id : String
+  kind : RuleDeltaKind
+} derive(@debug.Debug)
+
+pub(all) enum RuleDeltaKind {
+  AddedRule
+  RemovedRule
+  ModifiedRule
+  UnchangedRule
+} derive(Eq, @debug.Debug)
+
 pub(all) enum RuleEffect {
   Permit
   Deny
@@ -372,6 +388,12 @@ pub(all) struct ScopeCoverage {
   missing_examples : Array[AccessRequest]
   complete : Bool
   diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
+
+pub(all) struct StructuralDiff {
+  rules : Array[RuleDelta]
+  added_role_edges : Array[RoleInheritance]
+  removed_role_edges : Array[RoleInheritance]
 } derive(@debug.Debug)
 
 pub(all) enum TenantRelation {
