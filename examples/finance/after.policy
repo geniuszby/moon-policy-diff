@@ -1,0 +1,4 @@
+# A role inheritance change gives the trainee role analyst permissions.
+policy finance-after
+inherit trainee analyst
+rule local-report permit analyst read report - same principal:department:eq:finance

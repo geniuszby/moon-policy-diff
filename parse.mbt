@@ -136,7 +136,7 @@ pub fn parse_policy(source : String) -> ParsedPolicy {
   let lines = source.split("\n").collect()
   for index, raw in lines {
     let line = raw.to_owned().trim().to_owned()
-    if line == "" || line.starts_with("#") {
+    if line == "" || line.has_prefix("#") {
       continue
     }
     let parts = fields(line)
@@ -208,18 +208,32 @@ pub fn parse_policy(source : String) -> ParsedPolicy {
 /// principal ID TENANT ROLES ATTRS
 /// resource ID KIND TENANT ATTRS
 /// request PRINCIPAL ACTION RESOURCE ATTRS
+/// matrix ACTION1,ACTION2
 pub fn parse_universe(source : String) -> ParsedUniverse {
   let principals : Array[Principal] = []
   let resources : Array[AccessResource] = []
   let requests : Array[AccessRequest] = []
+  let matrix_actions : Array[String] = []
   let diagnostics : Array[Diagnostic] = []
   let lines = source.split("\n").collect()
   for index, raw in lines {
     let line = raw.to_owned().trim().to_owned()
-    if line == "" || line.starts_with("#") {
+    if line == "" || line.has_prefix("#") {
       continue
     }
     let parts = fields(line)
+    if parts[0] == "matrix" {
+      if parts.length() == 2 {
+        for action in comma_list(parts[1]) {
+          if !matrix_actions.contains(action) {
+            matrix_actions.push(action)
+          }
+        }
+      } else {
+        diagnostics.push(parse_issue(index + 1, "expected matrix ACTIONS"))
+      }
+      continue
+    }
     if parts.length() != 5 {
       diagnostics.push(parse_issue(index + 1, "expected five fields"))
       continue
@@ -254,7 +268,14 @@ pub fn parse_universe(source : String) -> ParsedUniverse {
         diagnostics.push(parse_issue(index + 1, "unknown universe directive"))
     }
   }
-  let universe : RequestUniverse = { principals, resources, requests, }
+  let mut universe : RequestUniverse = { principals, resources, requests, }
+  if matrix_actions.length() > 0 {
+    let expansion = expand_request_matrix(universe, matrix_actions, 100000)
+    for issue in expansion.diagnostics {
+      diagnostics.push(issue)
+    }
+    universe = expansion.universe
+  }
   for issue in validate_universe(universe) {
     diagnostics.push(issue)
   }

@@ -1,0 +1,6 @@
+principal alice team-a analyst department=finance
+principal intern team-a trainee department=finance
+principal guest team-b trainee department=finance
+resource forecast report team-a classification=internal
+resource ledger report team-b classification=restricted
+matrix read,export

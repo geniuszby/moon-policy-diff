@@ -30,6 +30,8 @@ pub fn evaluate_request(AccessPolicy, RequestUniverse, AccessRequest) -> Decisio
 
 pub fn evaluate_validated(AccessPolicy, RequestUniverse, AccessRequest) -> Decision
 
+pub fn expand_request_matrix(RequestUniverse, Array[String], Int) -> MatrixExpansion
+
 pub fn find_witnesses(AuditReport, ChangeKind) -> Array[DecisionChange]
 
 pub fn glob_matches(String, String) -> Bool
@@ -61,6 +63,8 @@ pub fn selector_matches(Array[String], String) -> Bool
 pub fn shadowed_rules(PolicyCoverage) -> Array[String]
 
 pub fn strict_gate() -> GateConfig
+
+pub fn tenant_pairs(RequestUniverse) -> Array[(String, String)]
 
 pub fn unknown_decision(String) -> Decision
 
@@ -199,6 +203,12 @@ pub(all) enum GateVerdict {
   Fail
   Indeterminate
 } derive(Eq, @debug.Debug)
+
+pub(all) struct MatrixExpansion {
+  universe : RequestUniverse
+  generated_requests : Int
+  diagnostics : Array[Diagnostic]
+} derive(@debug.Debug)
 
 pub(all) struct ParsedPolicy {
   policy : AccessPolicy

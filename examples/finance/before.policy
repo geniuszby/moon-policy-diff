@@ -1,0 +1,3 @@
+# Finance analysts can read reports in their own department.
+policy finance-before
+rule local-report permit analyst read report - same principal:department:eq:finance
