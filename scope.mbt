@@ -9,20 +9,19 @@ pub(all) struct ScopeCoverage {
 } derive(Debug)
 
 ///|
-fn request_triple_exists(
+fn scope_request_index(
   universe : RequestUniverse,
-  principal_id : String,
-  action : String,
-  resource_id : String,
-) -> Bool {
+) -> Map[(String, String, String), Bool] {
+  let triples : Map[(String, String, String), Bool] = Map([])
   for request in universe.requests {
-    if request.principal_id == principal_id &&
-      request.action == action &&
-      request.resource_id == resource_id {
-      return true
-    }
+    // Attribute variants represent the same triple. Tuple keys preserve
+    // identifier boundaries even when an identifier contains punctuation.
+    triples.set(
+      (request.principal_id, request.action, request.resource_id),
+      true,
+    )
   }
-  false
+  triples
 }
 
 ///|
@@ -53,6 +52,7 @@ pub fn analyze_scope(
     })
   }
   let unique_actions : Array[String] = []
+  let seen_actions : Map[String, Bool] = Map([])
   for action in actions {
     if !is_valid_identifier(action) {
       diagnostics.push({
@@ -60,8 +60,9 @@ pub fn analyze_scope(
         severity: Error,
         message: "invalid declared action \{action}",
       })
-    } else if !unique_actions.contains(action) {
+    } else if seen_actions.get(action) is None {
       unique_actions.push(action)
+      seen_actions.set(action, true)
     }
   }
   if has_errors(diagnostics) {
@@ -77,6 +78,7 @@ pub fn analyze_scope(
   let mut possible = 0
   let mut represented = 0
   let mut missing = 0
+  let represented_triples = scope_request_index(universe)
   for principal in universe.principals {
     for action in unique_actions {
       for resource in universe.resources {
@@ -96,7 +98,8 @@ pub fn analyze_scope(
           }
         }
         possible += 1
-        if request_triple_exists(universe, principal.id, action, resource.id) {
+        if represented_triples.get((principal.id, action, resource.id))
+          is Some(_) {
           represented += 1
         } else {
           missing += 1
