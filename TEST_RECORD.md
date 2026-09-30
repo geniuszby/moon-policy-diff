@@ -10,6 +10,8 @@
 - AI 工具：3 个样本、3 个新增授权，FORBIDDEN_ACTION，退出码 1。
 - SaaS 原生回归用例导出后，旧策略回放 1 项通过（退出码 0），新策略回放 1 项失败（退出码 1）。
 - 代码统计：5494 行非空 MoonBit 源码与测试，排除依赖与构建产物；该总数包含旧兼容流程，不等于本次新增工作量。
+- [GitHub CI 运行 36710530977](https://github.com/geniuszby/moon-policy-diff/actions/runs/36710530977)通过，对应功能提交 2d1d2a4c897188f3a9fc3f5760834937f966ac1f，包含新流程和原生回放检查。
+- moon publish 返回 HTTP 200；[Mooncakes 发布清单](https://mooncakes.io/api/v0/manifest/geniuszby/moon-policy-diff)确认最新版本 0.2.0、构建成功，以及 eisem/moon_policy 0.1.0 和 moonbitlang/x 0.4.49 依赖。
 
 ## 2026-09-30：覆盖分析索引
 
