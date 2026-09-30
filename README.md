@@ -1,8 +1,32 @@
 # MoonPolicyDiff
 
-MoonPolicyDiff 是 MoonBit 实现的离线权限策略变更审计工具。输入新旧策略和一组明确列出的请求，程序分别求值，找出新增授权、撤销授权、命中的规则，并用退出码供 CI 拦截。适用于多租户 SaaS、数据访问和 AI 工具权限的发布前检查。
+MoonPolicyDiff 0.2.0 是基于 [MoonPolicy](https://github.com/Eisem/moon_policy) 的权限回归与发布风险审查扩展。主要流程直接依赖 Mooncakes 的 eisem/moon_policy 0.1.0，复用其 JSON 解析、授权求值、策略差异和用例回放；本项目增加有限属性域生成、租户隔离及禁止动作不变量、按动作变更预算和回归用例导出。
 
-公开代码：[GitHub](https://github.com/geniuszby/moon-policy-diff)；0.1.0 包：[Mooncakes](https://mooncakes.io/docs/geniuszby/moon-policy-diff)。
+公开代码：[GitHub](https://github.com/geniuszby/moon-policy-diff)；包：[Mooncakes](https://mooncakes.io/docs/geniuszby/moon-policy-diff)。
+
+## 推荐流程：MoonPolicy 扩展
+
+    moon run cmd/main -- release-audit examples/moonpolicy/saas/before.json examples/moonpolicy/saas/after.json examples/moonpolicy/saas/seeds.json examples/moonpolicy/saas/plan.json
+
+此例生成 6 个属性样本，发现 1 个新增跨租户授权，返回退出码 1。完整的 SaaS、数据平台和 AI 工具运行、用例导出及回放说明见 [MoonPolicy 示例](examples/moonpolicy/README.md)。
+
+| 责任范围 | 实现来源 |
+| --- | --- |
+| 策略 JSON、角色继承、属性条件、拒绝语义、原始决策轨迹、基础差异及原生用例回放 | eisem/moon_policy 0.1.0 |
+| 声明有限属性取值，枚举缺失、布尔、整数边界等组合，超限不输出部分样本 | release_samples.mbt、release_plan.mbt |
+| 检查所有新版允许请求的租户隔离与禁止动作不变量，缺失租户元数据返回不确定 | release_audit.mbt |
+| 分动作设置新增授权和撤权预算；重复请求只计一次 | release_audit.mbt |
+| 导出上游原生回归用例，输出采样范围与机器可读审查报告 | release_run.mbt、release_audit.mbt |
+
+这些扩展不改写 MoonPolicy 授权语义，不提供其他引擎的语义转换。采样完整性只针对用户声明的有限域；域外属性、其他身份资源及真实租户元数据需调用方保证。租户策略以请求顶层字符串属性 tenant 为默认来源，可以配置其他非保留顶层键。禁止动作使用精确名称。
+
+### 库接入
+
+在使用方同时导入 geniuszby/moon-policy-diff 和 eisem/moon_policy。调用 parse_release_plan 读取审查配置，随后将上游 Policy 和 Request 交给 run_release_plan；run_moonpolicy_json 可直接处理三份上游 JSON 文本。release_regression_cases 返回上游 PolicyCase 数组，可交给 Policy.run_cases。接口见 pkg.generated.mbti。
+
+## 0.1 兼容流程
+
+以下旧文本 DSL、求值和分析接口保留给现有使用者。它们使用本项目的旧模型，不会自动转换为 MoonPolicy 策略；两套流程不能混用。旧版求值、diff、verify、coverage、lint 等与生态项目存在功能重叠，不作为本次扩展独创性的依据。反事实归因、结构差异和见证分组目前仍仅适用于旧模型。
 
 ## 快速运行
 
@@ -77,4 +101,4 @@ GitHub Actions 在 push 和 PR 上运行检查、测试、构建和格式检查�
 
 ## 原创性与许可
 
-项目为原创 MoonBit 实现，借鉴通用 RBAC/ABAC 概念，不移植现有引擎代码。与相关公开项目的边界、来源见 [RELATED_WORK.md](RELATED_WORK.md)。源码采用 Apache-2.0；依赖、更新和验证记录见 [THIRD_PARTY.md](THIRD_PARTY.md)、[CHANGELOG.md](CHANGELOG.md) 和 [TEST_RECORD.md](TEST_RECORD.md)。
+本项目新增部分为原创 MoonBit 扩展代码，授权基础复用 MoonPolicy，而不是宣称基础权限引擎和策略差异为本项目独有。上游源码通过包依赖使用，没有复制到本仓库；来源和重叠能力见 [RELATED_WORK.md](RELATED_WORK.md)。本项目和 MoonPolicy 均采用 Apache-2.0；依赖、更新和验证记录见 [THIRD_PARTY.md](THIRD_PARTY.md)、[CHANGELOG.md](CHANGELOG.md) 和 [TEST_RECORD.md](TEST_RECORD.md)。

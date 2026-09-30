@@ -9,7 +9,58 @@ fn usage() -> Unit {
   println("       moon run cmd/main -- impact POLICY UNIVERSE")
   println("       moon run cmd/main -- scope UNIVERSE ACTION1,ACTION2")
   println("       moon run cmd/main -- verify POLICY UNIVERSE EXPECTATIONS")
+  println(
+    "       moon run cmd/main -- release-audit BEFORE.json AFTER.json SEEDS.json [PLAN.json]",
+  )
+  println(
+    "       moon run cmd/main -- release-cases BEFORE.json AFTER.json SEEDS.json [PLAN.json]",
+  )
+  println("       moon run cmd/main -- release-replay POLICY.json CASES.json")
   println("Exit: 0 pass, 1 gate failure, 2 invalid input")
+}
+
+///|
+fn release_command(args : Array[String]) -> Unit {
+  try {
+    match (load(args[3]), load(args[4]), load(args[5])) {
+      (Some(before), Some(after), Some(seeds)) => {
+        let plan = if args.length() == 7 {
+          match load(args[6]) {
+            Some(text) => @lib.parse_release_plan(text)
+            None => {
+              @sys.exit(2)
+              return
+            }
+          }
+        } else {
+          @lib.default_release_plan()
+        }
+        let run = @lib.run_moonpolicy_json(before, after, seeds, plan)
+        if args[2] == "release-cases" {
+          // Never export a partial corpus as a valid regression artifact.
+          if !run.report.complete {
+            println(@lib.release_run_json(run).stringify())
+            @sys.exit(2)
+            return
+          }
+          println(@lib.release_cases_json(run.report).stringify())
+        } else {
+          println(@lib.release_run_json(run).stringify())
+        }
+        match run.report.verdict {
+          @lib.Pass => ()
+          @lib.Fail => @sys.exit(1)
+          @lib.Indeterminate => @sys.exit(2)
+        }
+      }
+      _ => @sys.exit(2)
+    }
+  } catch {
+    @lib.InvalidReleaseInput(message) => {
+      println("Invalid release input: \{message}")
+      @sys.exit(2)
+    }
+  }
 }
 
 ///|
@@ -70,6 +121,35 @@ fn inspect(policy_path : String, universe_path : String, mode : String) -> Unit 
 ///|
 fn main {
   let args = @env.args()
+  if (args.length() == 6 || args.length() == 7) &&
+    (args[2] == "release-audit" || args[2] == "release-cases") {
+    release_command(args)
+    return
+  }
+  if args.length() == 5 && args[2] == "release-replay" {
+    try {
+      match (load(args[3]), load(args[4])) {
+        (Some(policy), Some(cases)) => {
+          let result = @lib.replay_moonpolicy_json(policy, cases)
+          println(result.stringify())
+          match result {
+            { "failed": Number(failed, ..), .. } =>
+              if failed > 0 {
+                @sys.exit(1)
+              }
+            _ => @sys.exit(2)
+          }
+        }
+        _ => @sys.exit(2)
+      }
+    } catch {
+      @lib.InvalidReleaseInput(message) => {
+        println("Invalid replay input: \{message}")
+        @sys.exit(2)
+      }
+    }
+    return
+  }
   if args.length() == 5 && args[2] == "coverage" {
     inspect(args[3], args[4], "coverage")
     return

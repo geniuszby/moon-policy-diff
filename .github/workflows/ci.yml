@@ -35,3 +35,26 @@ jobs:
         run: |
           moon fmt
           git diff --exit-code
+      - name: MoonPolicy extension and replay
+        run: |
+          for scenario in saas data-platform ai-tools; do
+            root="examples/moonpolicy/$scenario"
+            set +e
+            moon run cmd/main -- release-audit "$root/before.json" "$root/after.json" "$root/seeds.json" "$root/plan.json" > "$scenario-release.json"
+            result=$?
+            set -e
+            test "$result" -eq 1
+          done
+          node -e "const specs=[['saas',6,1,'TENANT_ISOLATION'],['data-platform',6,2,'ACTION_GRANT_BUDGET'],['ai-tools',3,3,'FORBIDDEN_ACTION']]; for(const [s,n,c,f] of specs){const r=require('./'+s+'-release.json'); if(r.audit.engine!=='eisem/moon_policy@0.1.0'||!r.audit.complete||r.sampling.unique_requests!==n||r.audit.changes.length!==c||r.audit.verdict!=='FAIL'||!r.audit.findings.some(x=>x.code===f))process.exit(1)}"
+          set +e
+          moon run cmd/main -- release-cases examples/moonpolicy/saas/before.json examples/moonpolicy/saas/after.json examples/moonpolicy/saas/seeds.json examples/moonpolicy/saas/plan.json > replay-cases.json
+          result=$?
+          set -e
+          test "$result" -eq 1
+          moon run cmd/main -- release-replay examples/moonpolicy/saas/before.json replay-cases.json > replay-before.json
+          set +e
+          moon run cmd/main -- release-replay examples/moonpolicy/saas/after.json replay-cases.json > replay-after.json
+          result=$?
+          set -e
+          test "$result" -eq 1
+          node -e "const a=require('./replay-before.json'),b=require('./replay-after.json');if(a.passed!==1||a.failed!==0||b.failed!==1)process.exit(1)"

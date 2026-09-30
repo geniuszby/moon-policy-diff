@@ -1,0 +1,5 @@
+{
+  "max_requests": 100,
+  "action_budgets": [{"action": "dataset:query", "max_new_grants": 1}],
+  "domains": [{"source": "context", "key": "risk", "values": [null, 19, 20, 21, 30, 31]}]
+}

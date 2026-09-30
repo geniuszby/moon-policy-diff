@@ -1,0 +1,8 @@
+{
+  "rules": [{
+    "id": "approved-export",
+    "effect": "allow",
+    "action": "invoice:export",
+    "condition": {"equals": {"path": "context.approved", "value": true}}
+  }]
+}

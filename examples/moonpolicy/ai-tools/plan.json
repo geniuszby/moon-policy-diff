@@ -1,0 +1,6 @@
+{
+  "max_requests": 100,
+  "action_budgets": [{"action": "tool:execute", "max_new_grants": 3}],
+  "forbidden_actions": ["tool:execute"],
+  "domains": [{"source": "context", "key": "approved", "values": [null, true, false]}]
+}

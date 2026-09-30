@@ -1,0 +1,8 @@
+{
+  "rules": [{
+    "id": "expanded-query",
+    "effect": "allow",
+    "action": "dataset:query",
+    "condition": {"compare": {"path": "context.risk", "op": "lte", "value": 30}}
+  }]
+}

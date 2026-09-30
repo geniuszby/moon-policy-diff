@@ -1,0 +1,4 @@
+[
+  {"subject": "agent", "action": "tool:execute", "resource": "tool:shell",
+   "subject_attributes": {"tenant": "a"}, "resource_attributes": {"tenant": "a"}}
+]

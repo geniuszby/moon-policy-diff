@@ -1,0 +1,11 @@
+{
+  "rules": [{
+    "id": "approved-same-tenant-export",
+    "effect": "allow",
+    "action": "invoice:export",
+    "condition": {"all": [
+      {"same": {"left": "subject.tenant", "right": "resource.tenant"}},
+      {"equals": {"path": "context.approved", "value": true}}
+    ]}
+  }]
+}

@@ -1,0 +1,8 @@
+{
+  "rules": [{
+    "id": "low-risk-query",
+    "effect": "allow",
+    "action": "dataset:query",
+    "condition": {"compare": {"path": "context.risk", "op": "lte", "value": 20}}
+  }]
+}

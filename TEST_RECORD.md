@@ -1,5 +1,16 @@
 # 验证记录
 
+## 2026-09-30：MoonPolicy 扩展 0.2.0
+
+- 实际下载并锁定 eisem/moon_policy 0.1.0；新流程使用该发布包的原生解析、授权、差异及回放接口。
+- moon info、moon fmt、moon check --target js、moon build --target js 均成功。
+- moon test --target js：98 项测试全部通过，含 20 项新流程测试。
+- SaaS：6 个样本、1 个新增授权，TENANT_ISOLATION，退出码 1。
+- 数据平台：6 个样本、2 个新增授权，ACTION_GRANT_BUDGET，退出码 1。
+- AI 工具：3 个样本、3 个新增授权，FORBIDDEN_ACTION，退出码 1。
+- SaaS 原生回归用例导出后，旧策略回放 1 项通过（退出码 0），新策略回放 1 项失败（退出码 1）。
+- 代码统计：5494 行非空 MoonBit 源码与测试，排除依赖与构建产物；该总数包含旧兼容流程，不等于本次新增工作量。
+
 ## 2026-09-30：覆盖分析索引
 
 - moon info、moon fmt、moon check --target js、moon build --target js 均成功。

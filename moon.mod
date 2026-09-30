@@ -11,7 +11,7 @@
 
 name = "geniuszby/moon-policy-diff"
 
-version = "0.1.0"
+version = "0.2.0"
 
 readme = "README.mbt.md"
 
@@ -23,8 +23,9 @@ keywords = [ "authorization", "policy", "rbac", "abac", "change-audit" ]
 
 preferred_target = "js"
 
-description = "Bounded access-policy change audit with explainable counterexamples"
+description = "MoonPolicy extension for finite attribute sampling, tenant invariants and release regression gates"
 
 import {
   "moonbitlang/x@0.4.49",
+  "eisem/moon_policy@0.1.0",
 }

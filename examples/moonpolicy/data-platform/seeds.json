@@ -1,0 +1,4 @@
+[
+  {"subject": "analyst", "action": "dataset:query", "resource": "dataset:finance",
+   "subject_attributes": {"tenant": "a"}, "resource_attributes": {"tenant": "a"}}
+]

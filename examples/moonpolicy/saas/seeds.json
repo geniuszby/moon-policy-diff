@@ -1,0 +1,6 @@
+[
+  {"subject": "alice", "action": "invoice:export", "resource": "invoice:local",
+   "subject_attributes": {"tenant": "a"}, "resource_attributes": {"tenant": "a"}},
+  {"subject": "alice", "action": "invoice:export", "resource": "invoice:remote",
+   "subject_attributes": {"tenant": "a"}, "resource_attributes": {"tenant": "b"}}
+]

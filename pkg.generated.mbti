@@ -2,6 +2,7 @@
 package "geniuszby/moon-policy-diff"
 
 import {
+  "eisem/moon_policy",
   "moonbitlang/core/debug",
 }
 
@@ -9,6 +10,8 @@ import {
 pub fn analyze_scope(RequestUniverse, Array[String], Int) -> ScopeCoverage
 
 pub fn attribute_changes(AccessPolicy, AccessPolicy, RequestUniverse) -> Array[AttributedChange]
+
+pub fn audit_release(@moon_policy.Policy, @moon_policy.Policy, Array[@moon_policy.Request], ReleaseConfig) -> ReleaseReport
 
 pub fn cause_name(ChangeCause) -> String
 
@@ -32,6 +35,8 @@ pub fn cross_tenant_change_count(Array[ChangeGroup]) -> Int
 
 pub fn default_deny() -> Decision
 
+pub fn default_release_plan() -> ReleasePlan
+
 pub fn effective_roles(AccessPolicy, Principal) -> Array[String]
 
 pub fn empty_policy(String) -> AccessPolicy
@@ -45,6 +50,8 @@ pub fn evaluate_validated(AccessPolicy, RequestUniverse, AccessRequest) -> Decis
 pub fn expand_request_matrix(RequestUniverse, Array[String], Int) -> MatrixExpansion
 
 pub fn find_witnesses(AuditReport, ChangeKind) -> Array[DecisionChange]
+
+pub fn generate_release_samples(Array[@moon_policy.Request], Array[ReleaseAttributeDomain], Int) -> ReleaseSamples
 
 pub fn glob_matches(String, String) -> Bool
 
@@ -70,7 +77,17 @@ pub fn parse_expectations(String) -> ParsedExpectations
 
 pub fn parse_policy(String) -> ParsedPolicy
 
+pub fn parse_release_plan(String) -> ReleasePlan raise ReleaseInputError
+
 pub fn parse_universe(String) -> ParsedUniverse
+
+pub fn release_cases_json(ReleaseReport) -> Json
+
+pub fn release_regression_cases(ReleaseReport) -> Array[@moon_policy.PolicyCase]
+
+pub fn release_report_json(ReleaseReport) -> Json
+
+pub fn release_run_json(ReleaseRun) -> Json
 
 pub fn render_attribution(Array[AttributedChange]) -> String
 
@@ -94,7 +111,13 @@ pub fn render_verification(VerificationReport) -> String
 
 pub fn render_witnesses(WitnessSelection) -> String
 
+pub fn replay_moonpolicy_json(String, String) -> Json raise ReleaseInputError
+
 pub fn rule_match_trace(AccessRule, Array[String], Principal, AccessResource, AccessRequest) -> RuleTrace
+
+pub fn run_moonpolicy_json(String, String, String, ReleasePlan) -> ReleaseRun raise ReleaseInputError
+
+pub fn run_release_plan(@moon_policy.Policy, @moon_policy.Policy, Array[@moon_policy.Request], ReleasePlan) -> ReleaseRun
 
 pub fn select_witnesses(AuditReport, RequestUniverse, Int) -> WitnessSelection
 
@@ -103,6 +126,8 @@ pub fn selector_matches(Array[String], String) -> Bool
 pub fn shadowed_rules(PolicyCoverage) -> Array[String]
 
 pub fn strict_gate() -> GateConfig
+
+pub fn strict_release_config() -> ReleaseConfig
 
 pub fn structural_diff(AccessPolicy, AccessPolicy) -> StructuralDiff
 
@@ -121,6 +146,9 @@ pub fn verdict_name(GateVerdict) -> String
 pub fn verify_expectations(AccessPolicy, RequestUniverse, Array[DecisionExpectation]) -> VerificationReport
 
 // Errors
+pub(all) suberror ReleaseInputError {
+  InvalidReleaseInput(String)
+} derive(Eq, @debug.Debug)
 
 // Types and methods
 pub(all) struct AccessPolicy {
@@ -332,6 +360,51 @@ pub(all) struct Principal {
   roles : Array[String]
   attributes : Array[(String, String)]
 } derive(Eq, @debug.Debug)
+
+pub(all) struct ReleaseAttributeDomain {
+  source : AttributeSource
+  key : String
+  values : Array[@moon_policy.AttributeValue?]
+} derive(@debug.Debug)
+
+pub(all) struct ReleaseConfig {
+  action_budgets : Array[ActionBudget]
+  forbid_cross_tenant : Bool
+  tenant_attribute : String
+  forbidden_actions : Array[String]
+} derive(@debug.Debug)
+
+pub(all) struct ReleaseFinding {
+  code : String
+  message : String
+  request : @moon_policy.Request?
+} derive(@debug.Debug)
+
+pub(all) struct ReleasePlan {
+  config : ReleaseConfig
+  domains : Array[ReleaseAttributeDomain]
+  max_requests : Int
+} derive(@debug.Debug)
+
+pub(all) struct ReleaseReport {
+  complete : Bool
+  requests_evaluated : Int
+  changes : Array[@moon_policy.AccessChange]
+  findings : Array[ReleaseFinding]
+  verdict : GateVerdict
+} derive(@debug.Debug)
+
+pub(all) struct ReleaseRun {
+  samples : ReleaseSamples
+  report : ReleaseReport
+} derive(@debug.Debug)
+
+pub(all) struct ReleaseSamples {
+  requests : Array[@moon_policy.Request]
+  complete : Bool
+  candidate_count : Int
+  diagnostics : Array[String]
+} derive(@debug.Debug)
 
 pub(all) struct RequestUniverse {
   principals : Array[Principal]

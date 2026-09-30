@@ -1,0 +1,8 @@
+{
+  "rules": [{
+    "id": "execute-tool",
+    "effect": "allow",
+    "action": "tool:execute",
+    "resource": {"glob": "tool:*"}
+  }]
+}
